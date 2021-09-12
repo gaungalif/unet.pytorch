@@ -87,20 +87,22 @@ class Unet(pl.LightningModule):
         x = self.up4(x, x1)
         return self.out(x)
 
-    def training_step(self, batch, batch_nb):
+    def _shared_step(self, batch, batch_idx):
         x, y = batch
-        y_hat = self.forward(x)
-        loss = F.cross_entropy(y_hat, y) if self.n_classes > 1 else \
-            F.binary_cross_entropy_with_logits(y_hat, y)
-        tensorboard_logs = {'train_loss': loss}
-        return {'loss': loss, 'log': tensorboard_logs}
+        x_hat = self.forward(x)
+        return x_hat, x        
 
-    def validation_step(self, batch, batch_nb):
-        x, y = batch
-        y_hat = self.forward(x)
-        loss = F.cross_entropy(y_hat, y) if self.n_classes > 1 else \
-            F.binary_cross_entropy_with_logits(y_hat, y)
-        return {'val_loss': loss}
+    def training_step(self, batch, batch_idx):
+        preds, x = self._shared_step(batch, batch_idx)
+        loss = F.cross_entropy(preds, x) if self.n_classes > 1 else \
+            F.binary_cross_entropy_with_logits(preds, x)
+        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+
+    def validation_step(self, batch, batch_idx):
+        preds, x = self._shared_step(batch, batch_idx)
+        loss = F.cross_entropy(preds, x) if self.n_classes > 1 else \
+            F.binary_cross_entropy_with_logits(preds, x)
+        self.log('valid_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
 
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
