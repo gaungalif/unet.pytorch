@@ -48,8 +48,6 @@ class DirDataset(Dataset):
         assert len(img_files) == 1, f'{idx}: {img_files}'
         assert len(mask_files) == 1, f'{idx}: {mask_files}'
 
-        # use Pillow's Image to read .gif mask
-        # https://answers.opencv.org/question/185929/how-to-read-gif-in-python/
         img = Image.open(img_files[0])
         mask = Image.open(mask_files[0])
         assert img.size == mask.size, f'{img.shape} # {mask.shape}'
