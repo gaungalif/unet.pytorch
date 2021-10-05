@@ -44,7 +44,7 @@ class UNetDecoder(nn.Module):
 
 
 class UNet(pl.LightningModule):
-    def __init__(self, in_chan, n_classes, start_feat=64):
+    def __init__(self, in_chan, n_classes, start_feat=64, **kwargs):
         super(UNet, self).__init__()
         self.encoder_in_chan = in_chan
         self.decoder_in_chan = start_feat * 16
