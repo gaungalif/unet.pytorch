@@ -13,7 +13,7 @@ import mlflow
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default=None)
+    parser.add_argument('--data_dir', type=str, default='./dataset')
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=2)
     
@@ -23,8 +23,8 @@ if __name__ == "__main__":
     
     dict_args = vars(hparams)
     
-    # mlflow.set_tracking_uri("http://localhost:54849")
-    # mlflow.pytorch.autolog()
+    mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.pytorch.autolog()
     
     datamod = BrainMRISegmentationDataModule(**dict_args)
     unet = UNet(**dict_args)
