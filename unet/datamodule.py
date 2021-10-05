@@ -120,6 +120,6 @@ class BrainMRISegmentationDataModule(pl.LightningDataModule):
     def train_dataloader(self):
         return DataLoader(self.brain_trainset, batch_size=self.batch_size, num_workers=self.num_workers)
     
-    def valid_dataloader(self):
+    def val_dataloader(self):
         return DataLoader(self.brain_validset, batch_size=self.batch_size, num_workers=self.num_workers)
    
