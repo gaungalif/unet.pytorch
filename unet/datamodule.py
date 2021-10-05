@@ -23,13 +23,13 @@ def transform_fn(train=False, size=(224,224)):
             PairResize(size),
             PairRandomRotation(20),
             PairToTensor(),
-            normalize,
+            # normalize,
         ])
     else:
         return PairCompose([
             PairResize(size),
             PairToTensor(),
-            normalize,
+            # normalize,
         ])
 
 class BrainMRISegmentationDataset(ImageFolder):
