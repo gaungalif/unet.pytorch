@@ -9,6 +9,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from unet.datamodule import BrainMRISegmentationDataModule
 from unet.module import UNet
 import mlflow
+from pytorch_lightning.callbacks import QuantizationAwareTraining
+
 
 
 if __name__ == "__main__":
@@ -37,8 +39,9 @@ if __name__ == "__main__":
         monitor='val_step_loss',
         mode='min',
     )
+
     
-    trainer = pl.Trainer.from_argparse_args(hparams, callbacks=model_checkpoint)
+    trainer = pl.Trainer.from_argparse_args(hparams, callbacks=[QuantizationAwareTraining(observer_type='histogram', input_compatible=True), model_checkpoint])
     # with mlflow.start_run() as run:
     trainer.fit(unet, datamod)
     trainer.save_checkpoint("checkpoints/latest.ckpt")
