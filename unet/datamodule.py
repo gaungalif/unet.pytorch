@@ -13,14 +13,32 @@ from torchvision.datasets import ImageFolder
 from typing import *
 from unet.transforms import *
 
+def transform_fn(train=False, size=(224,224)):
+    normalize = PairNormalize(mean=[0.485, 0.456, 0.406], 
+                                std=[0.229, 0.224, 0.225]) 
+
+    
+    if train:                                 
+        return PairCompose([
+            PairResize(size),
+            PairRandomHorizontalFlip(),
+            PairToTensor(),
+            normalize,
+        ])
+    else:
+        return PairCompose([
+            PairResize((256,256)),
+            transforms.CenterCrop(size),
+            PairToTensor(),
+            normalize,
+        ])
+
 class BrainMRISegmentationDataset(ImageFolder):
     def __init__(self, root: Path, train: bool = True, val_size: float = 0.2, transform=None, 
                  image_transform=None, mask_transform=None, **kwargs):
-        super(BrainMRISegmentationDataset, self).__init__()
-        self.root = Path(root)
+        super(BrainMRISegmentationDataset, self).__init__(Path(root), transform)
         self.train = train
         self.val_size = val_size
-        self.transform = transform
         self.image_transform = image_transform
         self.mask_transform = mask_transform
         
@@ -87,29 +105,17 @@ class BrainMRISegmentationDataset(ImageFolder):
         
 class BrainMRISegmentationDataModule(pl.LightningDataModule):
     def __init__(self, data_dir: str, batch_size: int = 1, num_workers: int = 2, **kwargs):
-        super(BrainMRISegmentationDataModule, self).__init__()
+        super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.normalize = PairNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
 
-        self.root = "../input/lgg-mri-segmentation/kaggle_3m/"
-
-        self.train_transform = PairCompose([
-            PairResize((224, 224)),
-            PairRandomRotation(20),
-            PairToTensor(),
-            self.normalize,
-        ])
-        self.valid_transform = PairCompose([
-            PairResize((224, 224)),
-            PairToTensor(),
-            self.normalize,
-        ])
+        self.train_transform = transform_fn(train=True) 
+        self.valid_transform = transform_fn(train=False) 
     
     def setup(self, stage: Optional[str] = None):
-            self.brain_trainset = BrainMRISegmentationDataset(root=self.root, train=True, transform=self.train_transform)
-            self.brain_validset = BrainMRISegmentationDataset(root=self.root, train=False, transform=self.valid_transform)
+            self.brain_trainset = BrainMRISegmentationDataset(root=self.data_dir, train=True, transform=self.train_transform)
+            self.brain_validset = BrainMRISegmentationDataset(root=self.data_dir, train=False, transform=self.valid_transform)
    
     def train_dataloader(self):
         return DataLoader(self.brain_trainset, batch_size=self.batch_size, num_workers=self.num_workers)
