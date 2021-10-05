@@ -21,14 +21,13 @@ def transform_fn(train=False, size=(224,224)):
     if train:                                 
         return PairCompose([
             PairResize(size),
-            PairRandomHorizontalFlip(),
+            PairRandomRotation(20),
             PairToTensor(),
             normalize,
         ])
     else:
         return PairCompose([
-            PairResize((256,256)),
-            PairCenterCrop(size),
+            PairResize(size),
             PairToTensor(),
             normalize,
         ])
