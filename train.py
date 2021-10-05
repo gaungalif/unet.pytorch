@@ -23,8 +23,8 @@ if __name__ == "__main__":
     
     dict_args = vars(hparams)
     
-    mlflow.set_tracking_uri("http://localhost:5000")
-    mlflow.pytorch.autolog()
+    # mlflow.set_tracking_uri("http://localhost:5000")
+    # mlflow.pytorch.autolog()
     
     datamod = BrainMRISegmentationDataModule(**dict_args)
     unet = UNet(**dict_args)
@@ -39,8 +39,8 @@ if __name__ == "__main__":
     )
     
     trainer = pl.Trainer.from_argparse_args(hparams, callbacks=model_checkpoint)
-    with mlflow.start_run() as run:
-        trainer.fit(unet, datamod)
+    # with mlflow.start_run() as run:
+    trainer.fit(unet, datamod)
     trainer.save_checkpoint("checkpoints/latest.ckpt")
     
     metrics =  trainer.logged_metrics
