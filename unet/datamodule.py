@@ -28,7 +28,7 @@ def transform_fn(train=False, size=(224,224)):
     else:
         return PairCompose([
             PairResize((256,256)),
-            transforms.CenterCrop(size),
+            PairCenterCrop(size),
             PairToTensor(),
             normalize,
         ])
