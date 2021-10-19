@@ -56,7 +56,3 @@ if __name__ == "__main__":
     
     logging.info(f"Prepare to save training results to path {saved_filename}")
     torch.save(unet.state_dict(), saved_filename)
-    
-    
-    
-    
