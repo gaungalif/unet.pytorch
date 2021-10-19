@@ -55,7 +55,7 @@ if __name__ == "__main__":
     saved_filename = str(Path('weights').joinpath(filename))
     
     logging.info(f"Prepare to save training results to path {saved_filename}")
-    torch.save(unet.model.state_dict(), saved_filename)
+    torch.save(unet.state_dict(), saved_filename)
     
     
     
