@@ -15,7 +15,7 @@ from pytorch_lightning.callbacks import QuantizationAwareTraining
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default='./dataset')
+    parser.add_argument('--data_dir', type=str, default='/home/gaungalif/Workspace/datasets/brain_mri/')
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--start_feat', type=int, default=32)
