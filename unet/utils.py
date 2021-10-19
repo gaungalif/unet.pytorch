@@ -2,6 +2,7 @@ from datamodule import BrainMRISegmentationDataModule
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import torch
 
 def image_loader(idx: int = None, data_dir: str = None):
     dataset = BrainMRISegmentationDataModule(data_dir)
@@ -12,7 +13,7 @@ def image_loader(idx: int = None, data_dir: str = None):
     return images, labels
 
 class show_results():
-    def __init__(self, image, label, result):
+    def __init__(self, image: torch.Tensor, label:torch.Tensor, result: np.ndarray):
         self.image = image
         self.label = label
         self.result = result
@@ -31,10 +32,16 @@ class show_results():
         inputs = np.swapaxes(inputs, -2, -1)
         return inputs
     
+    def _to_numpy(self, tensor: torch.Tensor):
+        if tensor.requires_grad:
+            return tensor.detach().cpu().numpy() 
+        else:
+            return tensor.cpu().numpy()  
 
-    def clean_result(self, image, mask, result, figsize=(16,26)):
-        images = self._cfirst_to_clast(image)
-        masks = self._cfirst_to_clast(mask)
+    def clean_result(self, image: torch.Tensor, mask: torch.Tensor, result: np.ndarray, figsize=(16,26)):
+        images, masks =  self._to_numpy(image), self._to_numpy(mask.requires_grad_())
+        images = self._cfirst_to_clast(images)
+        masks = self._cfirst_to_clast(masks)
         results = self._cfirst_to_clast(result)
 
         dsc = list(map(dice_score, masks, results))

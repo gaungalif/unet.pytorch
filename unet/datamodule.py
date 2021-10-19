@@ -12,24 +12,24 @@ from torchvision.datasets import ImageFolder
 
 from typing import *
 
-import unet.transforms as T
+from unet.transforms import *
 
 def transform_fn(train=False, size=(224,224)):
-    normalize = T.PairNormalize(mean=[0.485, 0.456, 0.406], 
+    normalize = PairNormalize(mean=[0.485, 0.456, 0.406], 
                                 std=[0.229, 0.224, 0.225]) 
 
     
     if train:                                 
-        return T.PairCompose([
-            T.PairResize(size),
-            T.PairRandomRotation(20),
-            T.PairToTensor(),
+        return PairCompose([
+            PairResize(size),
+            PairRandomRotation(20),
+            PairToTensor(),
             # normalize,
         ])
     else:
-        return T.PairCompose([
-            T.PairResize(size),
-            T.PairToTensor(),
+        return PairCompose([
+            PairResize(size),
+            PairToTensor(),
             # normalize,
         ])
 
