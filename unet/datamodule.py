@@ -11,24 +11,25 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 from typing import *
-from unet.transforms import *
+
+import unet.transforms as T
 
 def transform_fn(train=False, size=(224,224)):
-    normalize = PairNormalize(mean=[0.485, 0.456, 0.406], 
+    normalize = T.PairNormalize(mean=[0.485, 0.456, 0.406], 
                                 std=[0.229, 0.224, 0.225]) 
 
     
     if train:                                 
-        return PairCompose([
-            PairResize(size),
-            PairRandomRotation(20),
-            PairToTensor(),
+        return T.PairCompose([
+            T.PairResize(size),
+            T.PairRandomRotation(20),
+            T.PairToTensor(),
             # normalize,
         ])
     else:
-        return PairCompose([
-            PairResize(size),
-            PairToTensor(),
+        return T.PairCompose([
+            T.PairResize(size),
+            T.PairToTensor(),
             # normalize,
         ])
 
@@ -108,11 +109,12 @@ class BrainMRISegmentationDataModule(pl.LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
-
         self.train_transform = transform_fn(train=True) 
         self.valid_transform = transform_fn(train=False) 
-    
-    def setup(self, stage: Optional[str] = None):
+
+        self._setup()
+
+    def _setup(self, stage: Optional[str] = None):
             self.brain_trainset = BrainMRISegmentationDataset(root=self.data_dir, train=True, transform=self.train_transform)
             self.brain_validset = BrainMRISegmentationDataset(root=self.data_dir, train=False, transform=self.valid_transform)
    
