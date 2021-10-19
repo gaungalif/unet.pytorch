@@ -194,7 +194,7 @@ class PairNormalize(transforms.Normalize):
     def __init__(self, mean, std, inplace=False):
         super(PairNormalize, self).__init__(mean, std, inplace=inplace)
         self.mask_mean = [0.1688,]
-        self.mask_std=[0.4161,]
+        self.mask_std = [0.4161,]
 
     def __call__(self, tensor1, tensor2):
         tensor1 = F.normalize(tensor1, self.mean, self.std, inplace=self.inplace)
