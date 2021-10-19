@@ -18,6 +18,9 @@ if __name__ == "__main__":
     parser.add_argument('--data_dir', type=str, default='./dataset')
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=2)
+    parser.add_argument('--start_feat', type=int, default=32)
+
+
     
     
     parser = pl.Trainer.add_argparse_args(parser)
@@ -30,7 +33,6 @@ if __name__ == "__main__":
     
     datamod = BrainMRISegmentationDataModule(**dict_args)
     unet = UNet(**dict_args)
-    
     model_checkpoint = ModelCheckpoint(
         dirpath='checkpoints/',
         save_top_k=1,
@@ -47,9 +49,9 @@ if __name__ == "__main__":
     trainer.save_checkpoint("checkpoints/latest.ckpt")
     
     metrics =  trainer.logged_metrics
-    vacc, last_epoch = metrics['val_step_acc'], metrics['epoch']
+    vloss = metrics['val_step_loss']
     
-    filename = f'unet-{last_epoch:02d}_acc{vacc:.4f}.pth'
+    filename = f'unet-loss{vloss:.4f}.pth'
     saved_filename = str(Path('weights').joinpath(filename))
     
     logging.info(f"Prepare to save training results to path {saved_filename}")

@@ -1,2 +1,2 @@
 # unet.pytorch
-U-Net Convolutional Neural Network
+U-Net Convolutional Neural Network for Brain MRI Segmentation dataset
