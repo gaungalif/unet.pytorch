@@ -14,6 +14,7 @@ from typing import *
 
 from unet.transforms import *
 
+
 def transform_fn(train=False, size=(224,224)):
     normalize = PairNormalize(mean=[0.485, 0.456, 0.406], 
                                 std=[0.229, 0.224, 0.225]) 

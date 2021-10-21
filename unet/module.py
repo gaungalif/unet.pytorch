@@ -7,6 +7,7 @@ import torchmetrics
 
 from unet.base import *
 
+
 class UNetEncoder(nn.Module):
     def __init__(self, in_chan, start_feat=64):
         super(UNetEncoder, self).__init__()
