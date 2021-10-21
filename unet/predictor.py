@@ -15,12 +15,12 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 
 class UNetSegmentation(object):
-    def __init__(self, weight: str = None, device: str = 'cpu'):
+    def __init__(self, weight: str = None, start_feat: int = 32,  device: str = 'cpu',):
         super(UNetSegmentation).__init__()
         self.weight = weight
         self.device = device
         
-        self.model = UNet(start_feat=32)
+        self.model = UNet(start_feat=start_feat)
         self._init_model()
         
         
@@ -130,20 +130,16 @@ class UNetSegmentationOnnx(object):
 
 
 
-if __name__ == "__main__":
-    weight_onnx = './weights/unet-epoch800-loss0.0093.pth.onnx'
-    weight = './weights/unet-epoch800-loss0.0093.pth'
+# if __name__ == "__main__":
+    # weight_onnx = './weights/unet-epoch800-loss0.0093.pth.onnx'
+    # weight = './weights/unet-epoch800-loss0.0093.pth'
 
-    data_dir = '/home/gaungalif/Workspace/datasets/brain_mri/'
-    idx = 23
-    images, labels = image_loader(idx =idx,data_dir=data_dir)
+    # data_dir = '/home/gaungalif/Workspace/datasets/brain_mri/'
+    # idx = 23
+    # images, labels = image_loader(idx =idx,data_dir=data_dir)
     
-    net_onnx = UNetSegmentationOnnx(weight=weight_onnx)
-    net = UNetSegmentation(weight=weight)
-
-
+    # net_onnx = UNetSegmentationOnnx(weight=weight_onnx)
     # res = net_onnx.predict(images, labels)
-    res = net.predict(images,labels)
-
     
-    
+    # net = UNetSegmentation(weight=weight)
+    # res = net.predict(images,labels)
