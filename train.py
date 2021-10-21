@@ -19,9 +19,6 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--start_feat', type=int, default=32)
-
-
-    
     
     parser = pl.Trainer.add_argparse_args(parser)
     hparams = parser.parse_args()
@@ -42,7 +39,6 @@ if __name__ == "__main__":
         mode='min',
     )
 
-    
     trainer = pl.Trainer.from_argparse_args(hparams, callbacks=[QuantizationAwareTraining(observer_type='histogram', input_compatible=True), model_checkpoint])
     # with mlflow.start_run() as run:
     trainer.fit(unet, datamod)
