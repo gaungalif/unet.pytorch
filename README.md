@@ -1,6 +1,8 @@
 # unet.pytorch
 U-Net Convolutional Neural Network for Brain MRI Segmentation dataset
 
+![](https://github.com/gaungalif/unet.pytorch/blob/main/results/unet_brain_MRI_results.gif)
+
 This repository contains the code to train Brain MRI Segmentation datasets taken from kaggle as an image segmentation using pytorch. you can download the weights that i have been trained for 800 epochs here, or you can try to use the onnx weight predictor version here 
 - store the weight at `weights/`
 
