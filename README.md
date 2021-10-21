@@ -47,7 +47,8 @@ change the `--idx` to change the images
 
 download the weights that i have been trained for 800 epochs here: https://drive.google.com/file/d/1RdfAtRuKtJBg6K99X7a_K4EQ_aDcOdT2/view?usp=sharing
 
-, or you can try to use the onnx weight predictor version here: https://drive.google.com/file/d/1RDygW-d8-o6EFpdx7v3j0HtJApJB6BLP/view?usp=sharing
+or you can try to use the onnx weight predictor version here: 
+https://drive.google.com/file/d/1RDygW-d8-o6EFpdx7v3j0HtJApJB6BLP/view?usp=sharing
 
 example command: 
 ```
