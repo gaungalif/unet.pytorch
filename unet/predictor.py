@@ -1,23 +1,68 @@
 import numpy as np
 import time
 import torch
-import PIL
-from PIL import Image
-from pathlib import Path
 
 import onnx
 import onnxruntime as ort
-
-from .datamodule import transform_fn
-from .module import *
-from .utils import *
 from typing import *
 
+from unet.module import *
+from unet.utils import *
 
-# from .utils import show_results
+
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
+
+class UNetSegmentation(object):
+    def __init__(self, weight: str = None, device: str = 'cpu'):
+        super(UNetSegmentation).__init__()
+        self.weight = weight
+        self.device = device
+        
+        self.model = UNet(start_feat=32)
+        self._init_model()
+        
+        
+    def _init_model(self):
+        if self.weight:
+            self.state_dict = self._load_weight(self.weight)
+            self.model.load_state_dict(self.state_dict)
+        self.model.to(self.device)
+    
+    def _load_weight(self, weight: str, key=None) -> OrderedDict:
+        state_dict = torch.load(weight, map_location=torch.device(self.device))
+        return state_dict
+
+    def _predict(self, image: torch.Tensor, label: torch.Tensor):
+        threshold: float = 0.5
+        start_time = time.time()
+        
+        self.model.eval()
+        with torch.set_grad_enabled(False):
+            preds = self.model(image)
+            total_time =time.time() - start_time
+
+            output = preds.detach().cpu().numpy()
+            output[output >= threshold] = 1.
+            output[output <= threshold] = 0.
+        
+        show_time(total_time)
+
+        result = show_results(image, label, output)
+        return result
+
+        
+        
+        
+    def predict(self, image: torch.Tensor, label: torch.Tensor):
+        return self._predict(image, label)
+        # return result
+
+    
+    
+
+
 
 class UNetSegmentationOnnx(object):
     def __init__(self, weight: str = None, num_classes: int = 1, 
@@ -26,7 +71,6 @@ class UNetSegmentationOnnx(object):
         self.weight = weight
         self.num_classes = num_classes
         self.device = device
-        self.transform = transform_fn(train=False)
         
         self._load_check_model()
         self._init_session()
@@ -44,7 +88,7 @@ class UNetSegmentationOnnx(object):
     def _load_check_model(self):
         self.onnx_model = onnx.load(self.weight)
         onnx.checker.check_model(self.onnx_model)
-        print('model loaded')
+        # print('model loaded')
         
     def _to_numpy(self, tensor: torch.Tensor):
         if tensor.requires_grad:
@@ -52,39 +96,32 @@ class UNetSegmentationOnnx(object):
         else:
             return tensor.cpu().numpy()        
 
-        
-    def _load_image(self, impath: str):
-        impath = Path(impath)
-        if impath.exists():
-            image = Image.open(impath)
-            image.convert("RGB")
-            return image
-        else:
-            raise ValueError()
+    def _onnx_predict(self, images: np.ndarray):
+        start_time = time.time()
 
-    def _onnx_predict(self, images):
         sess_input = {self.session.get_inputs()[0].name: images}
         ort_outs = self.session.run(None, sess_input)
+        total_time =time.time() - start_time
         onnx_predict = ort_outs[0]
-        print('predicted')
+
+        show_time(total_time)
         return onnx_predict
     
-    def _preprocess(self, inputs: torch.Tensor):
-        inputs = self._to_numpy(inputs)
-
+    def _preprocess(self, input: torch.Tensor):
+        inputs = self._to_numpy(input)
         return inputs
 
-    def _postprocess(self, prediction:np.ndarray):
-        threshold : float = 0.5
+    def _postprocess(self, prediction: np.ndarray):
+        threshold: float = 0.5
         prediction[prediction >= threshold] = 1.
         prediction[prediction <= threshold] = 0.
         return prediction
 
     def _predict(self, image: torch.Tensor, label: torch.Tensor):
         images = self._preprocess(image)
-        # labels = self._preprocess(label.requires_grad_(True))
         predict = self._onnx_predict(images)
-        result = self._postprocess(predict)
+        output = self._postprocess(predict)
+        result = show_results(image, label, output)
         return result
     
     def predict(self, image: torch.Tensor, label: torch.Tensor):
@@ -94,25 +131,19 @@ class UNetSegmentationOnnx(object):
 
 
 if __name__ == "__main__":
-    weight_onnx = './notebook/unet-epoch800-loss0.0093.pth.onnx'
-    # weight = './notebook/unet-epoch800-loss0.0093.pth'
-    data_dir = './dataset'
-    idx = 1
+    weight_onnx = './weights/unet-epoch800-loss0.0093.pth.onnx'
+    weight = './weights/unet-epoch800-loss0.0093.pth'
+
+    data_dir = '/home/gaungalif/Workspace/datasets/brain_mri/'
+    idx = 23
     images, labels = image_loader(idx =idx,data_dir=data_dir)
-    net = UNetSegmentationOnnx(weight=weight_onnx)
-    start_time = time.time()
+    
+    net_onnx = UNetSegmentationOnnx(weight=weight_onnx)
+    net = UNetSegmentation(weight=weight)
 
-    res = net.predict(images, labels)
 
-    total_time =time.time() - start_time
+    # res = net_onnx.predict(images, labels)
+    res = net.predict(images,labels)
 
-    unit = "s"
-    if total_time<1:
-        total_time = float(total_time * 1000)
-        unit="ms"
-        
-    print(f'Result : {res}')
-    print(f'Execution Time: {total_time:.0f} {unit}')
-    # show_results(img,lbl,res)
     
     
