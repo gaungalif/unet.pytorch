@@ -1,8 +1,9 @@
-from datamodule import BrainMRISegmentationDataModule
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import torch
+
+from unet.datamodule import BrainMRISegmentationDataModule
+
 
 def image_loader(idx: int = None, data_dir: str = None):
     dataset = BrainMRISegmentationDataModule(data_dir)
@@ -100,3 +101,10 @@ class DiceScore():
         dscs = np.array(list(map(dice_score, y_true, y_pred, [self.smoothing for _ in range(y_pred.shape[0])])))
         
         return np.mean(dscs)
+
+def show_time(total_time):
+    unit = "s"
+    if total_time<1:
+        total_time = float(total_time * 1000)
+        unit="ms"
+    print(f'Execution Time: {total_time:.0f} {unit}')
