@@ -8,7 +8,6 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 from unet.datamodule import BrainMRISegmentationDataModule
 from unet.module import UNet
-import mlflow
 from pytorch_lightning.callbacks import QuantizationAwareTraining
 
 
@@ -24,9 +23,6 @@ if __name__ == "__main__":
     hparams = parser.parse_args()
     
     dict_args = vars(hparams)
-    
-    # mlflow.set_tracking_uri("http://localhost:5000")
-    # mlflow.pytorch.autolog()
     
     datamod = BrainMRISegmentationDataModule(**dict_args)
     unet = UNet(**dict_args)
